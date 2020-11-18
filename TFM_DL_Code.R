@@ -1,12 +1,4 @@
 # TFM Daniela Lama - DoE
-##HOLA HOLA ##hola
-install.packages("shiny")
-library(shiny)
-
-#El paquete tidyverse tiene que cargarse as?:
-if(!require("tidyverse")) {
-  install.packages("tidyverse")
-  library("tidyverse")}
 
 #variable con lista de paquetes deseados
 paqs<-c("tidyverse","shiny")
@@ -14,7 +6,7 @@ paqs<-c("tidyverse","shiny")
 #variable de paquetes a instalar: son los deseados que NO est?n en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
 paqs2Install<-paqs[!(paqs%in%library()$results[,1])]
 
-#variable de paquetes a cargar:son los deseados que NO est?n cargados en la liber?a de R. Especificar all.available=TRUE para ver los paquetes cargados. 
+#variable de paquetes a cargar:son los deseados que NO est?n cargados en la libería de R. Especificar all.available=TRUE para ver los paquetes cargados. 
 paqs2Load<-paqs[!(paqs%in%.packages())]
 
 ## PREGUNTA: los cargados son los m ismos instalados... por tanto... no es redundante???
@@ -80,7 +72,7 @@ app_ui<-fluidPage(
     mainPanel(
       width=7,
       #plotOutput("distPlot"), #si quisiera tener el plot por fuera
-      #h es el tama?o de fuente
+      #h es el tamaño de fuente
       tabsetPanel(id="tabs1",type="tabs",
                   tabPanel(title="Caso",wellPanel(h4("Descripci?n de cada caso"))),
                   tabPanel(title="Datos",flowLayout(tableOutput("data"))),
