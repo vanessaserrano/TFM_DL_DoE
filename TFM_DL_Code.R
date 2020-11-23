@@ -128,7 +128,10 @@ app_server<-function(input,output,session){
   
   tabla_dom=reactive({
     nombre_columna<-c("A","B","C")
-    d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
+    # d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
+    d1=matrix(nrow=input$num_factores,ncol=3)
+    colnames(d1)<-nombre_columna
+    d1<-as.data.frame(d1)
   })
   
   output$dominio<-renderTable(tabla_dom())
