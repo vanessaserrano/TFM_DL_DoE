@@ -1,5 +1,5 @@
 # TFM Daniela Lama - DoE
-#HOLA mm mm
+
 #variable con lista de paquetes deseados
 paqs<-c("tidyverse","shiny")
 
@@ -84,9 +84,10 @@ app_ui<-fluidPage(
       tabsetPanel(id="tabs1",type="tabs",
                   tabPanel(title="Guía",wellPanel(h4("Descripci?n de cada caso"))),
                   tabPanel(title="Datos",
-                           flowLayout(tableOutput("data")),
+                           flowLayout(
                            numericInput(inputId="num_factores",label="Número de factores",value=0,min=0,step=1),
-                           numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1),
+                           tableOutput("dominio"),
+                           numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1)),
                            actionButton(inputId="borrar_datos",label="Borrar"),
                            actionButton(inputId="calcmatriz",label="Generar diseño"),
                            renderPrint("diseño_sugerido"),
@@ -125,7 +126,12 @@ app_server<-function(input,output,session){
     ))
   })
   
-  output$data<-renderTable(head(iris))
+  tabla_dom=reactive({
+    nombre_columna<-c("A","B","C")
+    d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
+  })
+  
+  output$dominio<-renderTable(tabla_dom())
   
 
   # tipo_caso<-reactiveValues(libre=0,paper=0,simul=0)
