@@ -1,5 +1,5 @@
 # TFM Daniela Lama - DoE
-#HOLA mm mm
+#HOLA HOLA
 #variable con lista de paquetes deseados
 paqs<-c("tidyverse","shiny")
 
@@ -59,23 +59,16 @@ app_ui<-fluidPage(
       width=5,
       titlePanel(h3("Seleccione el caso de preferencia")),
       verticalLayout(
-        fileInput(inputId="cargar_archivo",label="Cargar caso"),
-        radioButtons(inputId="caso_x",label="Empezar un caso nuevo",choices=c("Caso libre","Caso propuesto","Caso simulado")),
-        wellPanel(style= "background: lightblue",
-                  textOutput("descrip_caso")
-        ),
-        wellPanel(
-          tags$head(
-            tags$style(HTML('#intdatos{background-color:lightblue}'))
-          ),
-          div(style="display:inline-block;width:32%;text-align: left;",
-              actionButton(inputId="ayuda",label="Ayuda")),
-          div(style="display:inline-block;width:32%;text-align: center;",
-              actionButton(inputId="autor",label="Autor")),
-          div(style="display:inline-block;width:32%;text-align: right;",
-              actionButton(inputId="intdatos",label="Empezar"))
+          fileInput(inputId="cargar_archivo",label="Cargar caso"),
+          radioButtons(inputId="caso_x",label="Empezar un caso nuevo",choices=c("Caso libre","Caso propuesto","Caso simulado")),
+          wellPanel(style= "background: lightgray",
+                    textOutput("descrip_caso")
+                    ),
+          wellPanel(style= "background: lightblue",
+                    actionButton(inputId="intdatos",label="Empezar"),
+                    actionButton(inputId="ayuda",label="Ayuda")
+                    )
         )
-      )
     ),
     mainPanel(
       width=7,
@@ -83,15 +76,8 @@ app_ui<-fluidPage(
       #h es el tamaño de fuente
       tabsetPanel(id="tabs1",type="tabs",
                   tabPanel(title="Guía",wellPanel(h4("Descripci?n de cada caso"))),
-                  tabPanel(title="Datos",
-                           flowLayout(tableOutput("data")),
-                           numericInput(inputId="num_factores",label="Número de factores",value=0,min=0,step=1),
-                           numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1),
-                           actionButton(inputId="borrar_datos",label="Borrar"),
-                           actionButton(inputId="calcmatriz",label="Generar diseño"),
-                           renderPrint("diseño_sugerido"),
-                           actionButton(inputId="irmatriz",label="Continuar")),
-                  tabPanel(title="Matriz",actionButton(inputId="iranalisis",label="Analizar")),
+                  tabPanel(title="Datos",flowLayout(tableOutput("data")),actionButton(inputId="irmatriz",label="Generar matriz")),
+                  tabPanel(title="Matriz",plotOutput("distPlot")),
                   tabPanel(title="Análisis"))
     )
   )
@@ -100,34 +86,20 @@ app_ui<-fluidPage(
 ## SERVER SHINY
 
 app_server<-function(input,output,session){
-
+  
   observeEvent(input$intdatos,{
     updateTabsetPanel(session,"tabs1",selected="Datos")
   })
-  
   observeEvent(input$irmatriz,{
     updateTabsetPanel(session,"tabs1",selected="Matriz")
   })
   
-  observeEvent(input$iranalisis,{
-    updateTabsetPanel(session,"tabs1",selected="Análisis")
-  })
-    
-  observeEvent(input$ayuda,{
-    showModal(modalDialog(
-      title="AYUDA",renderText("Aquí no sé cómo hacer espacios entre líneas")
-    ))
-  })
-  
-  observeEvent(input$autor,{
-    showModal(modalDialog(
-      title="Información del autor",renderText("Misma historia que en ayuda")
-    ))
-  })
+  output$distPlot <- renderPlot({
+    hist(rnorm(input$obs), col = 'darkgray', border = 'white')})
   
   output$data<-renderTable(head(iris))
   
-
+  
   # tipo_caso<-reactiveValues(libre=0,paper=0,simul=0)
   # 
   # observeEvent(input$caso1,{
