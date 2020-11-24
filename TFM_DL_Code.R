@@ -85,9 +85,10 @@ app_ui<-fluidPage(
                   tabPanel(title="Guía",wellPanel(h4("Descripci?n de cada caso"))),
                   tabPanel(title="Datos",
                            flowLayout(
-                           numericInput(inputId="num_factores",label="Número de factores",value=0,min=0,step=1),
-                           tableOutput("dominio"),
+                           numericInput(inputId="num_factores",label="Número de factores",value=0,min=1,step=1,max=20),
+                           tableOutput("tabla_factores"),
                            numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1)),
+                           tableOutput("tabla_interacciones"),
                            actionButton(inputId="borrar_datos",label="Borrar"),
                            actionButton(inputId="calcmatriz",label="Generar diseño"),
                            renderPrint("diseño_sugerido"),
@@ -131,8 +132,13 @@ app_server<-function(input,output,session){
     d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
   })
   
-  output$dominio<-renderTable(tabla_dom())
+  output$tabla_factores<-renderTable(tabla_dom())
   
+  tabla_inter=reactive({
+    d2=as.data.frame(matrix(nrow=input$num_interac,ncol=3))
+  })
+  
+  output$tabla_interacciones<-renderTable(tabla_inter())
 
   # tipo_caso<-reactiveValues(libre=0,paper=0,simul=0)
   # 
