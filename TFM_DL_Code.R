@@ -1,9 +1,9 @@
 # TFM Daniela Lama - DoE
 
 #variable con lista de paquetes deseados
-paqs<-c("tidyverse","shiny","ggthemes")
+paqs<-c("tidyverse","shiny","DT")
 
-#variable de paquetes a instalar: son los deseados que NO están en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
+#variable de paquetes a instalar: son los deseados que NO est?n en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
 paqs2Install<-paqs[!(paqs%in%library()$results[,1])]
 
 #variable de paquetes a cargar:son los deseados que NO est?n cargados en la libería de R. Especificar all.available=TRUE para ver los paquetes cargados. 
@@ -84,11 +84,12 @@ app_ui<-fluidPage(
       tabsetPanel(id="tabs1",type="tabs",
                   tabPanel(title="Guía",wellPanel(h4("Descripci?n de cada caso"))),
                   tabPanel(title="Datos",
-                           flowLayout(
-                           numericInput(inputId="num_factores",label="Número de factores",value=0,min=1,step=1,max=20),
-                           tableOutput("tabla_factores"),
-                           numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1)),
-                           tableOutput("tabla_interacciones"),
+                           splitLayout(
+                             numericInput(inputId="num_factores",label="Número de factores",value=0,min=1,step=1,max=20),
+                             numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1)),
+                           splitLayout(
+                             DT::dataTableOutput("tabla_factores",width=250),
+                             DT::dataTableOutput("tabla_interacciones",width=250)),
                            actionButton(inputId="borrar_datos",label="Borrar"),
                            actionButton(inputId="calcmatriz",label="Generar diseño"),
                            renderPrint("diseño_sugerido"),
@@ -126,23 +127,104 @@ app_server<-function(input,output,session){
       title="Información del autor",renderText("Misma historia que en ayuda")
     ))
   })
-  
+
   tabla_dom=reactive({
-    nombre_columna<-c("A","B","C")
+    nombre_columna_fac<-c("Nombre Factor","Nivel")
     # d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
-    d1=matrix(nrow=input$num_factores,ncol=3)
-    colnames(d1)<-nombre_columna
-    d1<-as.data.frame(d1)
+    d1=data.frame(matrix(nrow=input$num_factores,ncol=2))
+    if(input$num_factores==1){
+      row.names(d1)<-c("A")
+    }
+    if(input$num_factores==2){
+      row.names(d1)<-c("A","B")
+    }
+    if(input$num_factores==3){
+      row.names(d1)<-c("A","B","C")
+    }
+    if(input$num_factores==4){
+      row.names(d1)<-c("A","B","C","D")
+    }
+    if(input$num_factores==5){
+      row.names(d1)<-c("A","B","C","D","E")
+    }
+    if(input$num_factores==6){
+      row.names(d1)<-c("A","B","C","D","E","F")
+    }
+    if(input$num_factores==7){
+      row.names(d1)<-c("A","B","C","D","E","F","G")
+    }
+    if(input$num_factores==8){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H")
+    }
+    if(input$num_factores==9){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I")
+    }
+    if(input$num_factores==10){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J")
+    }
+    if(input$num_factores==11){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K")
+    }
+    if(input$num_factores==12){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L")
+    }
+    if(input$num_factores==13){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M")
+    }
+    if(input$num_factores==14){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N")
+    }
+    if(input$num_factores==15){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")
+    }
+    if(input$num_factores==16){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P")
+    }
+    if(input$num_factores==17){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q")
+    }
+    if(input$num_factores==18){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R")
+    }
+    if(input$num_factores==19){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S")
+    }
+    if(input$num_factores==20){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T")
+    }
+    if(input$num_factores==21){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U")
+    }
+    if(input$num_factores==22){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V")
+    }
+    if(input$num_factores==23){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W")
+    }
+    if(input$num_factores==24){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X")
+    }
+    if(input$num_factores==25){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y")
+    }
+    if(input$num_factores==26){
+      row.names(d1)<-c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+    }
+    colnames(d1)<-nombre_columna_fac
+    d1=as.data.frame(d1)
   })
-  
-  output$tabla_factores<-renderTable(tabla_dom())
-  
+
+  output$tabla_factores<-renderDataTable(tabla_dom())
+
   
   tabla_inter=reactive({
-    d2=as.data.frame(matrix(nrow=input$num_interac,ncol=3))
+    nombre_columna_inter<-c("Factor 1","Factor 2")
+    d2=as.data.frame(matrix(nrow=input$num_interac,ncol=2))
+    colnames(d2)<-nombre_columna_inter
+    d2<-as.data.frame(d2)
   })
   
-  output$tabla_interacciones<-renderTable(tabla_inter())
+  output$tabla_interacciones<-renderDataTable(tabla_inter())
 
   # tipo_caso<-reactiveValues(libre=0,paper=0,simul=0)
   # 
