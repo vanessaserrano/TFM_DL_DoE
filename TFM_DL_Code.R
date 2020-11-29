@@ -1,9 +1,9 @@
 # TFM Daniela Lama - DoE
 
 #variable con lista de paquetes deseados
-paqs<-c("tidyverse","shiny")
+paqs<-c("tidyverse","shiny","ggthemes")
 
-#variable de paquetes a instalar: son los deseados que NO est?n en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
+#variable de paquetes a instalar: son los deseados que NO están en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
 paqs2Install<-paqs[!(paqs%in%library()$results[,1])]
 
 #variable de paquetes a cargar:son los deseados que NO est?n cargados en la libería de R. Especificar all.available=TRUE para ver los paquetes cargados. 
@@ -136,6 +136,7 @@ app_server<-function(input,output,session){
   })
   
   output$tabla_factores<-renderTable(tabla_dom())
+  
   
   tabla_inter=reactive({
     d2=as.data.frame(matrix(nrow=input$num_interac,ncol=3))
