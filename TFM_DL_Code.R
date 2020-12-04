@@ -1,7 +1,7 @@
 # TFM Daniela Lama - DoE
 
 #variable con lista de paquetes deseados
-paqs<-c("tidyverse","shiny","DT")
+paqs<-c("tidyverse","shiny","DT","rhandsontable")
 
 #variable de paquetes a instalar: son los deseados que NO est?n en los resultados de la columna 1 de la libreria. Si no especificaramos [,1], aparecer?a m?s informaci?n de los paquetes con library()$results. 
 paqs2Install<-paqs[!(paqs%in%library()$results[,1])]
@@ -82,7 +82,7 @@ app_ui<-fluidPage(
       #plotOutput("distPlot"), #si quisiera tener el plot por fuera
       #h es el tamaño de fuente
       tabsetPanel(id="tabs1",type="tabs",
-                  tabPanel(title="Guía",wellPanel(h4("Descripci?n de cada caso"))),
+                  tabPanel(title="Guía",wellPanel(h4(""))),
                   tabPanel(title="Datos",
                            splitLayout(
                              numericInput(inputId="num_factores",label="Número de factores",value=0,min=1,step=1,max=20),
@@ -90,10 +90,13 @@ app_ui<-fluidPage(
                            splitLayout(
                              DT::dataTableOutput("tabla_factores",width=250),
                              DT::dataTableOutput("tabla_interacciones",width=250)),
-                           actionButton(inputId="borrar_datos",label="Borrar"),
-                           actionButton(inputId="calcmatriz",label="Generar diseño"),
-                           renderPrint("diseño_sugerido"),
-                           actionButton(inputId="irmatriz",label="Continuar")),
+                           verticalLayout(
+                             actionButton(inputId="borrar_datos",label="Reset"),
+                             actionButton(inputId="calcmatriz",label="Generar diseño"),
+                             textOutput("diseño_sugerido")),
+                           tags$style(HTML('#irmatriz{background-color:lightblue}')),
+                           div(style="display:inline-block;width:32%;text-align: right;",
+                               actionButton(inputId="irmatriz",label="Continuar"))),
                   tabPanel(title="Matriz",actionButton(inputId="iranalisis",label="Analizar")),
                   tabPanel(title="Análisis"))
     )
@@ -103,7 +106,7 @@ app_ui<-fluidPage(
 ## SERVER SHINY
 
 app_server<-function(input,output,session){
-
+  
   observeEvent(input$intdatos,{
     updateTabsetPanel(session,"tabs1",selected="Datos")
   })
@@ -115,7 +118,7 @@ app_server<-function(input,output,session){
   observeEvent(input$iranalisis,{
     updateTabsetPanel(session,"tabs1",selected="Análisis")
   })
-    
+  
   observeEvent(input$ayuda,{
     showModal(modalDialog(
       title="AYUDA",renderText("Aquí no sé cómo hacer espacios entre líneas")
@@ -127,7 +130,7 @@ app_server<-function(input,output,session){
       title="Información del autor",renderText("Misma historia que en ayuda")
     ))
   })
-
+  
   tabla_dom=reactive({
     nombre_columna_fac<-c("Nombre Factor","Nivel")
     # d1=as.data.frame(matrix(nrow=input$num_factores,ncol=3))
@@ -213,9 +216,9 @@ app_server<-function(input,output,session){
     colnames(d1)<-nombre_columna_fac
     d1=as.data.frame(d1)
   })
-
-  output$tabla_factores<-renderDataTable(tabla_dom())
-
+  
+  output$tabla_factores<-renderDataTable(tabla_dom(),editable=TRUE)
+  
   
   tabla_inter=reactive({
     nombre_columna_inter<-c("Factor 1","Factor 2")
@@ -224,8 +227,8 @@ app_server<-function(input,output,session){
     d2<-as.data.frame(d2)
   })
   
-  output$tabla_interacciones<-renderDataTable(tabla_inter())
-
+  output$tabla_interacciones<-renderDataTable(tabla_inter(),editable=TRUE)
+  
   # tipo_caso<-reactiveValues(libre=0,paper=0,simul=0)
   # 
   # observeEvent(input$caso1,{
@@ -245,6 +248,15 @@ app_server<-function(input,output,session){
   #   tipo_caso$paper<-0
   #   tipo_caso$simul<-1
   # })
+  
+  observeEvent(input$borrar_datos,{
+    updateNumericInput(session,"num_factores",value=0)
+    updateNumericInput(session,"num_interac",value=0)
+  })
+  
+  observeEvent(input$calcmatriz,{
+    output$diseño_sugerido<-renderText("Diseño sugerido, debe depender de alguna variable de calc")
+  })
   
   observeEvent(input$caso_x,{
     output$descrip_caso<-renderText({
