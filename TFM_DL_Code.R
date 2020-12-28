@@ -81,36 +81,56 @@ app_ui<-fluidPage(
       tabsetPanel(id="tabs1",type="tabs",
                   tabPanel(title="Guía",wellPanel(h4(""))),
                   tabPanel(title="Datos",
+                           wellPanel(h5(
+                             "En esta sección tendrá que introducir el número de factores, número de niveles, y número de interacciones de interés. Una vez introducidos estos datos, tendrá que pulsar sobre el botón 'Generar diseño' para que el programa sugiera la matriz de Taguchi más adecuada para los grados de libertad requeridos. Si está de acuerdo con la matriz sugerida, continúe pulsando el botón 'continuar'")),
+                           
                            splitLayout(
                              numericInput(inputId="num_factores",label="Número de factores",value=0,min=1,step=1,max=20),
-                             numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1)),
+                             actionButton(inputId="irmatriz",label="Continuar")),
                            
-                           splitLayout(
-                             DT::dataTableOutput("tabla_factores",width=250),
-                             DT::dataTableOutput("tabla_niveles",width=250),
-                             DT::dataTableOutput("tabla_interacciones",width=250)),
-                           # tableOutput("tabla_interac")
+                           fluidRow(
+                             column(5,div(style = "height:400px;background-color: lightgrey;", DT::dataTableOutput("tabla_factores",width=250))),
+                             column(7,div(style = "height:400px;background-color: lightgrey;", DT::dataTableOutput("tabla_niveles",width=250)))),
+                           
+                           actionButton(inputId="borrar_datos",label="Reset"),
+                           
+                           actionButton(inputId="actualizar",label="Actualizar tabla de factores"),
+                           
+                           numericInput(inputId="num_interac",label="Número de interacciones",value=0,min=0,step=1),
                            
                            verticalLayout(
-                             actionButton(inputId="borrar_datos",label="Reset"),
+                             # column(12,div(style = "height:500px;background-color: lightblue;", DT::dataTableOutput("tabla_interacciones",width=250))),
+                             # column(12,div(style = "height:500px;background-color: lightblue;", datatable(m, escape = FALSE, options = list(dom = 't', paging = FALSE, ordering = FALSE))))),
+                             column(12,div(style = "height:500px;background-color: lightblue;", dataTableOutput('table')))),
+                  
+                           fluidRow(
                              actionButton(inputId="calcmatriz",label="Generar diseño"),
-                             textOutput("diseño_sugerido"),
-                             actionButton(inputId="actualizar",label="Actualizar tabla de factores")),
+                             textOutput("diseño_sugerido")),
+                           
                            
                            checkboxInput("cb",""),
                            tags$style(HTML('#irmatriz{background-color:lightblue}')),
-                           div(style="display:inline-block;width:32%;text-align: right;"),
-                           actionButton(inputId="irmatriz",label="Continuar")),
+                           div(style="display:inline-block;width:32%;text-align: right;")),
+                  # actionButton(inputId="irmatriz",label="Continuar")),
                   
                   tabPanel(title="Matriz",actionButton(inputId="iranalisis",label="Analizar")),
-                  tabPanel(title="Análisis"))
-    )
-  )
-)
+                  tabPanel(title="Análisis")
+      )
+    )))
+
+
 
 ## -SERVER SHINY-
 
 app_server<-function(input,output,session){
+  
+  shinyInput <- function(FUN,id,num,...) {
+    inputs <- character(num)
+    for (i in seq_len(num)) {
+      inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+    }
+    inputs
+  }
   
   # Descripcion de los casos al seleccionar alguno en el sidebarpanel
   
@@ -286,16 +306,36 @@ app_server<-function(input,output,session){
     output$tabla_niveles<-renderDataTable(d1,editable=list(target = 'cell', disable = list(columns = 0)))
   })
   
-  #Tabla de interacciones en pestaña "Datos"
+  m = data.frame(shinyInput(checkboxInput,LETTERS[1],5,value=NULL,width=1))
   
-  tabla_inter=reactive({
-    nombre_columna_inter<-c("Factor 1","Factor 2")
-    d2=as.data.frame(matrix(nrow=input$num_interac,ncol=2))
-    colnames(d2)<-nombre_columna_inter
-    d2<-as.data.frame(d2)
-  })
+  for (i in seq(2, nrow(m), 1)) {
+    m = cbind(m, shinyInput(checkboxInput,LETTERS[i],5,value=NULL,width=1))
+  }
   
-  output$tabla_interacciones<-renderDataTable(tabla_inter(),editable=list(target = 'cell', disable = list(columns = 0)))
+  colnames(m) <- LETTERS[1:5]
+  row.names(m) <- LETTERS[1:5]
+  
+  output$table <- DT::renderDataTable({
+    #Display table with checkbox buttons
+    DT::datatable(m,
+                  # options = list(drawCallback= JS(
+                  #                  'function(settings) {
+                  #                  Shiny.bindAll(this.api().table().node());}')
+                  # ),
+                  selection='none',escape=F)
+
+
+  }
+  )
+  
+  # tabla_inter=reactive({
+  #   nombre_columna_inter<-c("Factor 1","Factor 2")
+  #   d2=as.data.frame(matrix(nrow=input$num_interac,ncol=2))
+  #   colnames(d2)<-nombre_columna_inter
+  #   d2<-as.data.frame(d2)
+  # })
+  # 
+  # output$tabla_interacciones<-renderDataTable(tabla_inter(),editable=list(target = 'cell', disable = list(columns = 0)))
   
   #Boton para resetear datos introducidos
   
