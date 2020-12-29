@@ -305,15 +305,16 @@ app_server<-function(input,output,session){
     
     output$tabla_niveles<-renderDataTable(d1,editable=list(target = 'cell', disable = list(columns = 0)))
   })
+ 
+  observeEvent(input$num_factores,{
+  m = data.frame(shinyInput(checkboxInput,LETTERS[1],input$num_factores,value=NULL,width=1), row.names = NULL)
   
-  m = data.frame(shinyInput(checkboxInput,LETTERS[1],5,value=NULL,width=1))
-  
-  for (i in seq(2, nrow(m), 1)) {
-    m = cbind(m, shinyInput(checkboxInput,LETTERS[i],5,value=NULL,width=1))
+  for (i in seq(2, nrow(m))) {
+    m = cbind(m, shinyInput(checkboxInput,LETTERS[i],input$num_factores,value=NULL,width=1))
   }
   
-  colnames(m) <- LETTERS[1:5]
-  row.names(m) <- LETTERS[1:5]
+  colnames(m) <- LETTERS[1:input$num_factores]
+  # row.names(m) <- LETTERS[1:input$num_factores]
   
   output$table <- DT::renderDataTable({
     #Display table with checkbox buttons
@@ -323,10 +324,9 @@ app_server<-function(input,output,session){
                   #                  Shiny.bindAll(this.api().table().node());}')
                   # ),
                   selection='none',escape=F)
-
-
   }
   )
+  })
   
   # tabla_inter=reactive({
   #   nombre_columna_inter<-c("Factor 1","Factor 2")
